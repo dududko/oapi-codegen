@@ -26,6 +26,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/pkg/errors"
+	"github.com/Masterminds/sprig"
 
 	"github.com/deepmap/oapi-codegen/pkg/codegen/templates"
 )
@@ -96,7 +97,7 @@ func Generate(swagger *openapi3.Swagger, packageName string, opts Options) (stri
 	}
 
 	// This creates the golang templates text package
-	t := template.New("oapi-codegen").Funcs(TemplateFunctions)
+	t := template.New("oapi-codegen").Funcs(TemplateFunctions).Funcs(sprig.TxtFuncMap())
 	// This parses all of our own template files into the template object
 	// above
 	t, err := templates.Parse(t)
