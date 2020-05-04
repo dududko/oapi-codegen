@@ -1,3 +1,8 @@
+{{- define "pass-body-to-call" -}}
+{{- if eq (len .Bodies) 1 }}, {{ lcFirst (first .Bodies).Schema.RefType }}{{- end -}}
+{{- end }}
+
+
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
     Handler ServerInterface
@@ -119,10 +124,21 @@ func (w *ServerInterfaceWrapper) {{.OperationId}} (ctx echo.Context) error {
     }{{end}}
 
 {{end}}{{/* .CookieParams */}}
-
 {{end}}{{/* .RequiresParamObject */}}
+
+{{- if gt (len .Bodies) 1 }}
+{{- fail "too many request bodies"}}
+{{- end }}
+{{- if eq (len .Bodies) 1 }}
+{{- $body := first .Bodies }}
+    var {{ lcFirst $body.Schema.RefType }} {{ $body.Schema.RefType }}
+    if err = ctx.Bind({{ lcFirst $body.Schema.RefType }}); err != nil {
+        return err
+    }
+{{- end }}
+
     // Invoke the callback with all the unmarshalled arguments
-    err = w.Handler.{{.OperationId}}(ctx{{genParamNames .PathParams}}{{if .RequiresParamObject}}, params{{end}})
+    err = w.Handler.{{.OperationId}}(ctx{{genParamNames .PathParams}}{{if .RequiresParamObject}}, params{{end}}{{- template "pass-body-to-call" . }})
     return err
 }
 {{end}}

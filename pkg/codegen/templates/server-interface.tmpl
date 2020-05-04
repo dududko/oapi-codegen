@@ -2,9 +2,10 @@
 {{- if gt (len .Bodies) 1 }}
 {{- fail "too many request bodies"}}
 {{- end }}
+{{- if eq (len .Bodies) 1 }}
+{{- $body := first .Bodies }}
 {{- $opid := .OperationId -}}
-{{- range .Bodies -}}
-, body {{ if not .Required }}*{{ end }}{{$opid}}{{.NameTag}}RequestBody
+, body {{ if not $body.Required }}*{{ end }}{{ $body.Schema.RefType }}
 {{- end }}
 {{- end }}
 
