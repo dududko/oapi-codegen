@@ -1,7 +1,18 @@
+{{- define "add-request-body-to-method-args" -}}
+{{- if gt (len .Bodies) 1 }}
+{{- fail "too many request bodies"}}
+{{- end }}
+{{- $opid := .OperationId -}}
+{{- range .Bodies -}}
+, body {{ if not .Required }}*{{ end }}{{$opid}}{{.NameTag}}RequestBody
+{{- end }}
+{{- end }}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 {{range .}}{{.SummaryAsComment }}
 // ({{.Method}} {{.Path}})
-{{.OperationId}}(ctx echo.Context{{genParamArgs .PathParams}}{{if .RequiresParamObject}}, params {{.OperationId}}Params{{end}}) error
+
+{{.OperationId}}(ctx echo.Context{{genParamArgs .PathParams}}{{if .RequiresParamObject}}, params {{.OperationId}}Params{{end}}{{ template "add-request-body-to-method-args" . }}) error //({{- range getResponseTypeDefinitions .}}{{.TypeName}} *{{.Schema.TypeDecl}}, {{- end}}err error)
 {{end}}
 }
