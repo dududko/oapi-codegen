@@ -224,6 +224,7 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 				return Schema{}, errors.Wrap(err, "error generating type for array")
 			}
 			outSchema.GoType = "[]" + arrayType.TypeDecl()
+			outSchema.SkipOptionalPointer = true
 		case "integer":
 			// We default to int if format doesn't ask for something else.
 			if f == "int64" {
@@ -249,6 +250,7 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 				return Schema{}, fmt.Errorf("invalid format (%s) for boolean", f)
 			}
 			outSchema.GoType = "bool"
+			outSchema.SkipOptionalPointer = true
 		case "string":
 			for _, enumValue := range schema.Enum {
 				outSchema.EnumValues = append(outSchema.EnumValues, enumValue.(string))
@@ -257,6 +259,7 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 			switch f {
 			case "byte":
 				outSchema.GoType = "[]byte"
+				outSchema.SkipOptionalPointer = true
 			case "date":
 				outSchema.GoType = "openapi_types.Date"
 			case "date-time":
@@ -267,6 +270,7 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 			default:
 				// All unrecognized formats are simply a regular string.
 				outSchema.GoType = "string"
+				outSchema.SkipOptionalPointer = true
 			}
 		default:
 			return Schema{}, fmt.Errorf("unhandled Schema type: %s", t)

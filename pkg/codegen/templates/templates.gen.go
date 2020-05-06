@@ -753,16 +753,13 @@ type ServerInterface interface {
 `,
 	"typedef.tmpl": `{{range .Types}}
 // {{.TypeName}} defines model for {{.JsonName}}.
-{{- if eq (len .Schema.EnumValues) 0 }}
 type {{.TypeName}} {{.Schema.TypeDecl}}
-{{- else }}
-
+{{- if gt (len .Schema.EnumValues) 0 }}
 // List of {{ .TypeName }}
 const (
 	{{- $typeName := .TypeName }}
-	{{- $typeDecl := .Schema.TypeDecl }}
     {{- range .Schema.EnumValues }}
-    {{ $typeName }}_{{ . }} {{ $typeDecl }} = "{{ . }}"
+    {{ $typeName }}_{{ . }} {{ $typeName }} = "{{ . }}"
     {{- end }}
 )
 {{- end }}
