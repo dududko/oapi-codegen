@@ -141,7 +141,6 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 	}
 	// Handle objects and empty schemas first as a special case
 	if t == "" || t == "object" {
-		var outType string
 
 		if len(schema.Properties) == 0 && !SchemaHasAdditionalProperties(schema) {
 			// If the object has no properties or additional properties, we
@@ -149,13 +148,12 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 			if t == "object" {
 				// We have an object with no properties. This is a generic object
 				// expressed as a map.
-				outType = "map[string]interface{}"
+				outSchema.GoType = "map[string]interface{}"
 			} else { // t == ""
 				// If we don't even have the object designator, we're a completely
 				// generic type.
-				outType = "interface{}"
+				outSchema.GoType = "interface{}"
 			}
-			outSchema.GoType = outType
 		} else {
 			// We've got an object with some properties.
 			for _, pName := range SortedSchemaKeys(schema.Properties) {
